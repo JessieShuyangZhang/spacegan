@@ -19,6 +19,9 @@ from spacegan_method import SpaceGAN
 from spacegan_selection import get_spacegan_config, compute_metrics
 from spacegan_utils import gaussian, rmse, mad, pearsoncorr, mie, moranps, mase_1, mape, smape, eool, msis_1, get_neighbours_featurize
 from spacegan_config import Generator, Discriminator
+
+import matplotlib
+matplotlib.use('Agg')
 # %matplotlib inline
 
 # dataset
@@ -32,7 +35,7 @@ neighbours = 8 #Define the number of neihgbours to use
 # plotting
 #if ax1.collections: #Delete plot if it exists already
 #  ax1.clear()
-  
+
 fig, ax1 = plt.subplots(1, 1, figsize=(7, 5))
 gen_seq = df[["y"]].values.astype(float)
 norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
@@ -45,10 +48,10 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax1.set_title("Observed")
-
+fig.savefig('p1.png')
 
 # problem configuration
-prob_config = {"epochs": 20000,
+prob_config = {"epochs": 2000,
                "batch_size": 100,
                "device": torch.device("cuda"),
                "cond_dim": len(cond_vars) + (neighbours * len(cont_vars)),  # conditional information size
@@ -74,7 +77,7 @@ prob_config["adversarial_loss"] = torch.nn.BCELoss()
 
 # checkpointing configuration
 check_config = {
-    "check_interval": 100,  # for model checkpointing
+    "check_interval": 1000,  # for model checkpointing
     "generate_image": False,
     "n_samples": 20,
     "perf_metrics": {"RMSE": rmse,
@@ -124,7 +127,7 @@ spacegan.checkpoint_model(spacegan.epochs)
 spacegan.df_losses.to_pickle("grid_spaceganlosses.pkl.gz")
 
 
-'''
+
 # pick the best Generator (G) as determined by the MIE and the RMSE criterion.
 
 # computing metrics
@@ -170,7 +173,7 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax2.set_title("SpaceGAN - Best " + criteria)
-
+fig.savefig('p2.png')
 
 
 # plot the best generator after RMSE selection
@@ -193,12 +196,12 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax2.set_title("SpaceGAN - Best RMSE")
-
+fig.savefig('p3.png')
 
 
 # selection
 
-iteration = 3000
+iteration = 1000
 
 # get and set best space gan
 iter_spacegan = get_spacegan_config(iteration, prob_config, check_config, cond_input, target)
@@ -222,11 +225,12 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax1.set_title("SpaceGAN (RMSE) - Iteration " + str(iteration))
+fig.savefig('p4.png')
 
 
 
 
-iteration = 3000
+iteration = 1000
 
 # get and set best space gan
 iter_spacegan = get_spacegan_config(iteration, prob_config, check_config, cond_input, target)
@@ -253,6 +257,7 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax1.set_title("SpaceGAN (MIE) - Iteration " + str(iteration))
+fig.savefig('p5.png')
 
 
 
@@ -268,7 +273,4 @@ ax1.set_title("Generator and Discriminator loss during training")
 
 gan_metrics["agg_metrics"].plot(ax=ax2)
 ax2.set_title("Selection criteria during training")
-
-
-
-'''
+fig.savefig('p6.png')
