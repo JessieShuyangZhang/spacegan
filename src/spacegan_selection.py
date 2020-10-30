@@ -1,7 +1,8 @@
 import torch
 import pandas as pd
 import numpy as np
-import pysal.lib
+# import pysal.lib
+import libpysal
 import spacegan_method
 
 
@@ -46,11 +47,14 @@ def compute_metrics(target, cond_input, prob_config, check_config, coord_input, 
 
         if pf in ["MIE", "MIEPs"]:
             # distance matrix and normalization
-            dist = pysal.lib.cg.distance_matrix(coord_input)
+            # dist = pysal.lib.cg.distance_matrix(coord_input)
+            dist = libpysal.cg.distance_matrix(coord_input)
             u_dist = np.unique(dist)
             k_min_dist = np.sort(u_dist.flatten())[:neighbours]
-            kd = pysal.lib.cg.kdtree.KDTree(coord_input)
-            wdist = pysal.lib.weights.distance.DistanceBand(kd, threshold=k_min_dist[2], binary=True, p=2)  # Queen
+            # kd = pysal.lib.cg.kdtree.KDTree(coord_input)
+            kd = libpysal.cg.KDTree(coord_input)
+            # wdist = pysal.lib.weights.distance.DistanceBand(kd, threshold=k_min_dist[2], binary=True, p=2)  # Queen
+            wdist = libpysal.weights.DistanceBand(kd, threshold=k_min_dist[2], binary=True, p=2)  # Queen
             wdist.transform = "r"
 
     for agg in list(agg_funcs_dict.keys()):

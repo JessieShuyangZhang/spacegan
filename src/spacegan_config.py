@@ -40,55 +40,55 @@ class Discriminator(nn.Module):
         validity = self.model(input_data).float()
         return validity
 
-# Dataset
-df = pd.read_csv("data.csv") #Read data
-coord_vars = ["c1", "c2"] #Define spatial coordinates
-cond_vars = ["z"] + coord_vars #Define conditional variables
-output_vars = ["y"] #Define output
-neighbours = 8 #Define nearest neighbours
+# # Dataset
+# df = pd.read_csv("data.csv") #Read data
+# coord_vars = ["c1", "c2"] #Define spatial coordinates
+# cond_vars = ["z"] + coord_vars #Define conditional variables
+# output_vars = ["y"] #Define output
+# neighbours = 8 #Define nearest neighbours
 
-# problem configuration
-results_path = "./Results/"
-prob_config = {"epochs": 1001,
-               "batch_size": 100,
-               "device": torch.device("cuda"),
-               "cond_dim": len(cond_vars) + neighbours,  # conditional information size
-               "output_dim": len(output_vars),  # size of output
-               "noise_dim": len(cond_vars) + neighbours,  # size of noise
-               "noise_type": spacegan_utils.gaussian,  # type of noise and dimension used
-               "noise_params": None,  # other params for noise (loc, scale, etc.) pass as a dict
-               "scale_x": StandardScaler(),  # a sklearn.preprocessing scaling method
-               "scale_y": StandardScaler(),  # a sklearn.preprocessing scaling method
-               "print_results": False
-               }
+# # problem configuration
+# results_path = "./Results/"
+# prob_config = {"epochs": 1001,
+#                "batch_size": 100,
+#                "device": torch.device("cuda"),
+#                "cond_dim": len(cond_vars) + neighbours,  # conditional information size
+#                "output_dim": len(output_vars),  # size of output
+#                "noise_dim": len(cond_vars) + neighbours,  # size of noise
+#                "noise_type": spacegan_utils.gaussian,  # type of noise and dimension used
+#                "noise_params": None,  # other params for noise (loc, scale, etc.) pass as a dict
+#                "scale_x": StandardScaler(),  # a sklearn.preprocessing scaling method
+#                "scale_y": StandardScaler(),  # a sklearn.preprocessing scaling method
+#                "print_results": False
+#                }
 
-prob_config["gen_opt"] = torch.optim.SGD
-prob_config["gen_opt_params"] = {"lr": 0.01}
-prob_config["disc_opt"] = torch.optim.SGD
-prob_config["disc_opt_params"] = {"lr": 0.01}
-prob_config["adversarial_loss"] = torch.nn.BCELoss()
+# prob_config["gen_opt"] = torch.optim.SGD
+# prob_config["gen_opt_params"] = {"lr": 0.01}
+# prob_config["disc_opt"] = torch.optim.SGD
+# prob_config["disc_opt_params"] = {"lr": 0.01}
+# prob_config["adversarial_loss"] = torch.nn.BCELoss()
 
-# checkpointing configuration
-check_config = {
-    "check_interval": 100,  # for model checkpointing
-    "generate_image": False,
-    "n_samples": 100,
-    "perf_metrics": {"RMSE": spacegan_utils.rmse,
-                     "MIE": spacegan_utils.mie,
-                     },
-    "pf_metrics_setting": {
-        "RMSE": {"metric_level": "agg_metrics",
-             "rank_function": np.argmin,
-             "agg_function": lambda x: np.array(x)
-             },
-        "MIE": {"metric_level": "agg_metrics",
-                "rank_function": np.argmin,
-                "agg_function": lambda x: np.array(x)
-               },
-    },
-    "agg_funcs": {"avg": np.mean,
-                  "std": np.std
-                 },
-    "sample_metrics": False,
-    "agg_metrics": True
-}
+# # checkpointing configuration
+# check_config = {
+#     "check_interval": 100,  # for model checkpointing
+#     "generate_image": False,
+#     "n_samples": 100,
+#     "perf_metrics": {"RMSE": spacegan_utils.rmse,
+#                      "MIE": spacegan_utils.mie,
+#                      },
+#     "pf_metrics_setting": {
+#         "RMSE": {"metric_level": "agg_metrics",
+#              "rank_function": np.argmin,
+#              "agg_function": lambda x: np.array(x)
+#              },
+#         "MIE": {"metric_level": "agg_metrics",
+#                 "rank_function": np.argmin,
+#                 "agg_function": lambda x: np.array(x)
+#                },
+#     },
+#     "agg_funcs": {"avg": np.mean,
+#                   "std": np.std
+#                  },
+#     "sample_metrics": False,
+#     "agg_metrics": True
+# }
