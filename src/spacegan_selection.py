@@ -7,12 +7,12 @@ import spacegan_method
 
 
 def get_spacegan_config(training_step, prob_config, check_config, cond_input, target):
-
+    model_save_prefix = 'saved_models/'
     # load generator
-    gen_model = torch.load("gen_iter " + str(training_step) + ".pkl.gz")
+    gen_model = torch.load(model_save_prefix+"gen_iter " + str(training_step) + ".pkl.gz")
 
     # load discrimininator
-    disc_model = torch.load("disc_iter " + str(training_step) + ".pkl.gz")
+    disc_model = torch.load(model_save_prefix+"disc_iter " + str(training_step) + ".pkl.gz")
 
     # create a cgan object
     spacegan_i = spacegan_method.SpaceGAN(prob_config, check_config, disc_model, gen_model)
@@ -47,13 +47,10 @@ def compute_metrics(target, cond_input, prob_config, check_config, coord_input, 
 
         if pf in ["MIE", "MIEPs"]:
             # distance matrix and normalization
-            # dist = pysal.lib.cg.distance_matrix(coord_input)
             dist = libpysal.cg.distance_matrix(coord_input)
             u_dist = np.unique(dist)
             k_min_dist = np.sort(u_dist.flatten())[:neighbours]
-            # kd = pysal.lib.cg.kdtree.KDTree(coord_input)
             kd = libpysal.cg.KDTree(coord_input)
-            # wdist = pysal.lib.weights.distance.DistanceBand(kd, threshold=k_min_dist[2], binary=True, p=2)  # Queen
             wdist = libpysal.weights.DistanceBand(kd, threshold=k_min_dist[2], binary=True, p=2)  # Queen
             wdist.transform = "r"
 

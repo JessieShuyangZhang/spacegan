@@ -23,6 +23,7 @@ from spacegan_config import Generator, Discriminator
 import matplotlib
 matplotlib.use('Agg')
 # %matplotlib inline
+fig_save_prefix = 'img/'
 
 # dataset
 df = pd.read_csv("data/toy1.csv")
@@ -48,10 +49,10 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax1.set_title("Observed")
-fig.savefig('p1.png')
+fig.savefig(fig_save_prefix+'p1.png')
 
 # problem configuration
-prob_config = {"epochs": 2000,
+prob_config = {"epochs": 12000,
                "batch_size": 100,
                "device": torch.device("cuda"),
                "cond_dim": len(cond_vars) + (neighbours * len(cont_vars)),  # conditional information size
@@ -77,7 +78,7 @@ prob_config["adversarial_loss"] = torch.nn.BCELoss()
 
 # checkpointing configuration
 check_config = {
-    "check_interval": 1000,  # for model checkpointing
+    "check_interval": 4000,  # for model checkpointing
     "generate_image": False,
     "n_samples": 20,
     "perf_metrics": {"RMSE": rmse,
@@ -99,6 +100,8 @@ check_config = {
     "sample_metrics": False,
     "agg_metrics": True
 }
+
+model_save_prefix = 'saved_models/'
 
 # train the model
 
@@ -124,7 +127,7 @@ spacegan.train(x_train=cond_input, y_train=target, coords=coord_input)
 
 # export final model and data
 spacegan.checkpoint_model(spacegan.epochs) 
-spacegan.df_losses.to_pickle("grid_spaceganlosses.pkl.gz")
+spacegan.df_losses.to_pickle(model_save_prefix+"grid_spaceganlosses.pkl.gz")
 
 
 
@@ -151,8 +154,8 @@ for criteria in list(check_config["perf_metrics"].keys()):
         gan_samples_df["sample_" + str(i)] = best_spacegan.predict(gan_samples_df[cond_vars + neighbour_list])
 
     # export results
-    gan_samples_df.to_pickle("grid_" + criteria + ".pkl.gz")
-gan_metrics["agg_metrics"].to_pickle("grid_checkmetrics.pkl.gz")
+    gan_samples_df.to_pickle(model_save_prefix+"grid_" + criteria + ".pkl.gz")
+gan_metrics["agg_metrics"].to_pickle(model_save_prefix+"grid_checkmetrics.pkl.gz")
 
 
 
@@ -173,13 +176,14 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax2.set_title("SpaceGAN - Best " + criteria)
-fig.savefig('p2.png')
+fig.savefig(fig_save_prefix+'p2.png')
 
 
 # plot the best generator after RMSE selection
 
 #load rmse selection results
-gan_samples_df = pd.read_pickle("./grid_RMSE.pkl.gz")
+gan_samples_df = pd.read_pickle(model_save_prefix+"grid_RMSE.pkl.gz")
+# gan_samples_df = pd.read_pickle("./grid_RMSE.pkl.gz") 
 
 # show highlights
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
@@ -196,12 +200,12 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax2.set_title("SpaceGAN - Best RMSE")
-fig.savefig('p3.png')
+fig.savefig(fig_save_prefix+'p3.png')
 
 
 # selection
 
-iteration = 1000
+iteration = 8000
 
 # get and set best space gan
 iter_spacegan = get_spacegan_config(iteration, prob_config, check_config, cond_input, target)
@@ -225,18 +229,19 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax1.set_title("SpaceGAN (RMSE) - Iteration " + str(iteration))
-fig.savefig('p4.png')
+fig.savefig(fig_save_prefix+'p4.png')
 
 
 
 
-iteration = 1000
+iteration = 8000
 
 # get and set best space gan
 iter_spacegan = get_spacegan_config(iteration, prob_config, check_config, cond_input, target)
 
 #load mie selection results
-gan_samples_df = pd.read_pickle("./grid_MIE.pkl.gz")
+gan_samples_df = pd.read_pickle(model_save_prefix+"grid_MIE.pkl.gz")
+# gan_samples_df = pd.read_pickle("./grid_MIE.pkl.gz") 
 
 # training samples
 gan_samples_df = pd.DataFrame(index=range(cond_input.shape[0]), columns=cond_vars + neighbour_list + output_vars)
@@ -257,13 +262,14 @@ for lat, long, c in zip(df["latitude"], df["longitude"], colors):
 ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
 ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
 ax1.set_title("SpaceGAN (MIE) - Iteration " + str(iteration))
-fig.savefig('p5.png')
+fig.savefig(fig_save_prefix+'p5.png')
 
 
 
 
 #Load loss data
-loss_df = pd.read_pickle("./grid_spaceganlosses.pkl.gz")
+loss_df = pd.read_pickle(model_save_prefix+"grid_spaceganlosses.pkl.gz")
+# loss_df = pd.read_pickle("./grid_spaceganlosses.pkl.gz")
 
 #Plot losses and selection criteria side by side
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
@@ -273,4 +279,4 @@ ax1.set_title("Generator and Discriminator loss during training")
 
 gan_metrics["agg_metrics"].plot(ax=ax2)
 ax2.set_title("Selection criteria during training")
-fig.savefig('p6.png')
+fig.savefig(fig_save_prefix+'p6.png')

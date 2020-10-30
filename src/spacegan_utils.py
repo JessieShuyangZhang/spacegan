@@ -23,11 +23,11 @@ def ts_df(ts, lags):
     return df.dropna()
 
 
-def rmse(obs, pred):
+def rmse(obs, pred): # root mean square error
     return np.sqrt(np.mean(np.square(obs-pred)))
 
 
-def mad(obs, pred):
+def mad(obs, pred): # mean absolute difference
     return np.mean(np.abs(obs-pred))
 
 
