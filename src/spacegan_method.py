@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from IPython.display import display, clear_output
+# from IPython.display import display, clear_output
 
 
 class SpaceGAN:
@@ -129,8 +129,11 @@ class SpaceGAN:
                     if self.generate_image:
                         self.print_image(epoch, x_train, coords)
             if self.fig is not None:
-                clear_output(wait=True)
-                display(self.fig)
+                # clear_output(wait=True)
+                # display(self.fig)
+                fig_save_prefix = '../img/'
+                self.fig.savefig(fig_save_prefix+'spacegan_method1.png')
+
 
     def predict(self, x, noise=None):
         # generate noise

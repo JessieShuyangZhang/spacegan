@@ -8,11 +8,11 @@ verify_ssl = true
 [packages]
 esda = "*"
 libpysal = "*"
-urbanaccess = "*"
-pandana = "*"
+pandas = "<=0.25.0"
+matplotlib = "==2.1.1"
 torch = "*"
 scikit-learn = "*"
-ipython = "*"
+numpy = "<=1.14.5"
 
 [requires]
 python_version = "3.6"
