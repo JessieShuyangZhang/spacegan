@@ -37,22 +37,23 @@ neighbours = 8 #Define the number of neihgbours to use
 #if ax1.collections: #Delete plot if it exists already
 #  ax1.clear()
 
-fig, ax1 = plt.subplots(1, 1, figsize=(7, 5))
-gen_seq = df[["y"]].values.astype(float)
-norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
-colors = cm.rainbow(norm_gan_mean)
+# fig, ax1 = plt.subplots(1, 1, figsize=(7, 5))
+# f, ax = plt.subplots(1)
+# gen_seq = df[["y"]].values.astype(float)
+# norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
+# colors = cm.rainbow(norm_gan_mean)
 
 # plotting
-for lat, long, c in zip(df["latitude"], df["longitude"], colors):
-  ax1.scatter(lat, long, color=c)
+# for lat, long, c in zip(df["latitude"], df["longitude"], colors):
+#   ax1.scatter(lat, long, color=c)
   
-ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
-ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
-ax1.set_title("Observed")
-fig.savefig(fig_save_prefix+'p1.png')
+# ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
+# ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
+# ax1.set_title("Observed")
+# fig.savefig(fig_save_prefix+'p1.png')
 
 # problem configuration
-prob_config = {"epochs": 12000,
+prob_config = {"epochs": 1000,
                "batch_size": 100,
                "device": torch.device("cuda"),
                "cond_dim": len(cond_vars) + (neighbours * len(cont_vars)),  # conditional information size
@@ -78,7 +79,7 @@ prob_config["adversarial_loss"] = torch.nn.BCELoss()
 
 # checkpointing configuration
 check_config = {
-    "check_interval": 4000,  # for model checkpointing
+    "check_interval": 1000,  # for model checkpointing
     "generate_image": False,
     "n_samples": 20,
     "perf_metrics": {"RMSE": rmse,
@@ -162,21 +163,21 @@ gan_metrics["agg_metrics"].to_pickle(model_save_prefix+"grid_checkmetrics.pkl.gz
 # plot the results!
 
 # show highlights
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
-gan_metrics["agg_metrics"].plot(ax=ax1)
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+# gan_metrics["agg_metrics"].plot(ax=ax1)
 
-# generate chart
-gen_seq = gan_samples_df[["sample_" + str(x) for x in range(20)]].mean(axis=1)
-norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
-colors = cm.rainbow(norm_gan_mean)
+# # generate chart
+# gen_seq = gan_samples_df[["sample_" + str(x) for x in range(20)]].mean(axis=1)
+# norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
+# colors = cm.rainbow(norm_gan_mean)
 
-# plotting
-for lat, long, c in zip(df["latitude"], df["longitude"], colors):
-    ax2.scatter(lat, long, color=c)
-ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
-ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
-ax2.set_title("SpaceGAN - Best " + criteria)
-fig.savefig(fig_save_prefix+'p2.png')
+# # plotting
+# for lat, long, c in zip(df["latitude"], df["longitude"], colors):
+#     ax2.scatter(lat, long, color=c)
+# ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
+# ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
+# ax2.set_title("SpaceGAN - Best " + criteria)
+# fig.savefig(fig_save_prefix+'p2.png')
 
 
 # plot the best generator after RMSE selection
@@ -186,26 +187,27 @@ gan_samples_df = pd.read_pickle(model_save_prefix+"grid_RMSE.pkl.gz")
 # gan_samples_df = pd.read_pickle("./grid_RMSE.pkl.gz") 
 
 # show highlights
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
-gan_metrics["agg_metrics"].plot(ax=ax1)
+# fig, (ax1, ax2) = plt.subplots(1) #, 2, figsize=(15, 5))
+# gan_metrics["agg_metrics"].plot(ax=ax1)
 
-# generate chart
-gen_seq = gan_samples_df[["sample_" + str(x) for x in range(20)]].mean(axis=1)
-norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
-colors = cm.rainbow(norm_gan_mean)
+# # generate chart
+# gen_seq = gan_samples_df[["sample_" + str(x) for x in range(20)]].mean(axis=1)
+# norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
+# colors = cm.rainbow(norm_gan_mean)
 
-# plotting
-for lat, long, c in zip(df["latitude"], df["longitude"], colors):
-    ax2.scatter(lat, long, color=c)
-ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
-ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
-ax2.set_title("SpaceGAN - Best RMSE")
-fig.savefig(fig_save_prefix+'p3.png')
+# # plotting
+# for lat, long, c in zip(df["latitude"], df["longitude"], colors):
+#     ax2.scatter(lat, long, color=c)
+# ax2.set_xlabel(r'$c^{(1)}$', fontsize=14)
+# ax2.set_ylabel(r'$c^{(2)}$', fontsize=14)
+# ax2.set_title("SpaceGAN - Best RMSE")
+# fig.savefig(fig_save_prefix+'p3.png')
 
 
 # selection
 
-iteration = 8000
+# iteration = 8000
+iteration = 1000
 
 # get and set best space gan
 iter_spacegan = get_spacegan_config(iteration, prob_config, check_config, cond_input, target)
@@ -218,23 +220,24 @@ for i in range(check_config["n_samples"]):
     gan_samples_df["sample_" + str(i)] = iter_spacegan.predict(gan_samples_df[cond_vars + neighbour_list])
     
 # generate chart
-fig, ax1 = plt.subplots(1, 1, figsize=(7, 5))
-gen_seq = gan_samples_df[["sample_" + str(x) for x in range(1)]].mean(axis=1)
-norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
-colors = cm.rainbow(norm_gan_mean)
+# fig, ax1 = plt.subplots(1) #, 1, figsize=(7, 5))
+# gen_seq = gan_samples_df[["sample_" + str(x) for x in range(1)]].mean(axis=1)
+# norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
+# colors = cm.rainbow(norm_gan_mean)
 
-# plotting
-for lat, long, c in zip(df["latitude"], df["longitude"], colors):
-    ax1.scatter(lat, long, color=c)
-ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
-ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
-ax1.set_title("SpaceGAN (RMSE) - Iteration " + str(iteration))
-fig.savefig(fig_save_prefix+'p4.png')
-
-
+# # plotting
+# for lat, long, c in zip(df["latitude"], df["longitude"], colors):
+#     ax1.scatter(lat, long, color=c)
+# ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
+# ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
+# ax1.set_title("SpaceGAN (RMSE) - Iteration " + str(iteration))
+# fig.savefig(fig_save_prefix+'p4.png')
 
 
-iteration = 8000
+
+
+# iteration = 8000
+iteration = 1000
 
 # get and set best space gan
 iter_spacegan = get_spacegan_config(iteration, prob_config, check_config, cond_input, target)
@@ -251,18 +254,18 @@ for i in range(check_config["n_samples"]):
     gan_samples_df["sample_" + str(i)] = iter_spacegan.predict(gan_samples_df[cond_vars + neighbour_list])
     
 # generate chart
-fig, ax1 = plt.subplots(1, 1, figsize=(7, 5))
-gen_seq = gan_samples_df[["sample_" + str(x) for x in range(1)]].mean(axis=1)
-norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
-colors = cm.rainbow(norm_gan_mean)
+# fig, ax1 = plt.subplots(1) #, 1, figsize=(7, 5))
+# gen_seq = gan_samples_df[["sample_" + str(x) for x in range(1)]].mean(axis=1)
+# norm_gan_mean = (gen_seq - min(gen_seq)) / (max(gen_seq) - min(gen_seq))
+# colors = cm.rainbow(norm_gan_mean)
 
-# plotting
-for lat, long, c in zip(df["latitude"], df["longitude"], colors):
-    ax1.scatter(lat, long, color=c)
-ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
-ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
-ax1.set_title("SpaceGAN (MIE) - Iteration " + str(iteration))
-fig.savefig(fig_save_prefix+'p5.png')
+# # plotting
+# for lat, long, c in zip(df["latitude"], df["longitude"], colors):
+#     ax1.scatter(lat, long, color=c)
+# ax1.set_xlabel(r'$c^{(1)}$', fontsize=14)
+# ax1.set_ylabel(r'$c^{(2)}$', fontsize=14)
+# ax1.set_title("SpaceGAN (MIE) - Iteration " + str(iteration))
+# fig.savefig(fig_save_prefix+'p5.png')
 
 
 
@@ -272,11 +275,11 @@ loss_df = pd.read_pickle(model_save_prefix+"grid_spaceganlosses.pkl.gz")
 # loss_df = pd.read_pickle("./grid_spaceganlosses.pkl.gz")
 
 #Plot losses and selection criteria side by side
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+# fig, (ax1, ax2) = plt.subplots(1) #, 2, figsize=(15, 5))
 
-loss_df.plot(ax=ax1,alpha=0.7)
-ax1.set_title("Generator and Discriminator loss during training")
+# loss_df.plot(ax=ax1,alpha=0.7)
+# ax1.set_title("Generator and Discriminator loss during training")
 
-gan_metrics["agg_metrics"].plot(ax=ax2)
-ax2.set_title("Selection criteria during training")
-fig.savefig(fig_save_prefix+'p6.png')
+# gan_metrics["agg_metrics"].plot(ax=ax2)
+# ax2.set_title("Selection criteria during training")
+# fig.savefig(fig_save_prefix+'p6.png')
